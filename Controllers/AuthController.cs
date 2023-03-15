@@ -1,4 +1,6 @@
 ﻿using JsonWebToken.Models;
+using JsonWebToken.Services.UserService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -14,11 +16,28 @@ namespace JsonWebToken.Controllers
     {
         public static User user = new User();
         private readonly IConfiguration _config;
+        private readonly IUserService _userService;
 
-        public AuthController(IConfiguration config)
+        public AuthController(IConfiguration config, IUserService userService)
         {
             _config = config;
+            _userService = userService;
         }
+
+        [HttpGet, Authorize]
+        public ActionResult<string> GetUser()
+        {
+            //var userName = User?.Identity?.Name;
+            //var userName2 = User?.FindFirstValue(ClaimTypes.Name);
+            //var role = User?.FindFirstValue(ClaimTypes.Role);
+            //return Ok(new {userName, userName2, role});
+
+            var userName = _userService.GetName();
+            var role = _userService.GetRole();
+
+            return Ok(new { userName, role });
+        }
+
 
         [HttpPost("register")]
         public ActionResult<User> Register(UserDto request)
